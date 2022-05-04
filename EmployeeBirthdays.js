@@ -1,85 +1,126 @@
-const fs = require("fs");
-const path = require("path");
-var csvPath = (__dirname, './data.CSV');
-console.log(csvPath)
+import { readFile } from "fs";
+import path from "path";
+import { createInterface } from 'readline';
 
-fs.readFile(csvPath, "utf8", function(error,data){ 
-    let dataMap = new Map();
-    if (error) {
-        console.error(error);
-        return;
+// let csvPath = path.resolve(__dirname, './data.CSV');
+
+let date = [];
+
+function AgeStr(age) {
+    count = age % 100;
+    if (count >= 5 && count <= 20) {
+        return 'лет';
+    } else {
+        count = count % 10;
+        if (count == 1) {
+            return 'год';
+        } else if (count >= 2 && count <= 4) {
+            return 'года';
+        } else {
+            return 'лет';
+        }
     }
-    data.split('\n').map(el => {
-        let tempMap = el.split(',');
-        // console.log(tempMap);
-        dataMap.set('name', tempMap[0]);
-        dataMap.set('day', Number(tempMap[1]));
-        dataMap.set('month', Number(tempMap[2]));
-        dataMap.set('year', Number(tempMap[3]));
-        console.log(dataMap);
+}
+
+function dayToNumber(date) {
+    let formatDate = date.split('.').reverse().join('-')
+    return new Date(formatDate).getDate();
+}
+
+function monthToNumber(date) {
+    let formatDate = date.split('.').reverse().join('-')
+    return new Date(formatDate).getMonth() + 1;
+}
+
+function yearToNumber(date) {
+    let formatDate = date.split('.').reverse().join('-')
+    return new Date(formatDate).getFullYear();
+}
+
+function EmployeeBirthdays(date, amount) {
+    const monthNow = new Date(new Date().toDateString()).getMonth() + 1;
+    const yearNow = new Date(new Date().toDateString()).getFullYear();
+    const monthsStr = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+    date.sort(function (a, b) {
+        if (monthToNumber(a.date) > monthToNumber(b.date)) {
+            return 1;
+        }
+        if (monthToNumber(a.date) < monthToNumber(b.date)) {
+            return -1;
+        }
+        if (dayToNumber(a.date) > dayToNumber(b.date)) {
+            return 1;
+        }
+        if (dayToNumber(a.date) < dayToNumber(b.date)) {
+            return -1;
+        }
+        if (yearToNumber(a.date) > yearToNumber(b.date)) {
+            return 1;
+        }
+        if (yearToNumber(a.date) < yearToNumber(b.date)) {
+            return -1;
+        }
+        return 0;
     });
-    
-});
 
+    for (let i = 0; i <= amount; i++) {
+        let flag = false;
+        let month = (monthNow + i - 1) % 12;
+        console.log(`${monthsStr[month]} ${yearNow + (Math.floor(i / 12))}:`);
+        date.map(el => {
+            if (monthToNumber(el.date) === (month % 12) + 1) {
+                let age = yearNow - yearToNumber(el.date) + (Math.floor(i / 12));
+                console.log(` (${dayToNumber(el.date)}) - ${el.name} (${age} ${AgeStr(age)})`);
+                flag = true;
+            }
+        });
+        if (!flag) {
+            console.log(' Пусто...')
+        }
+    }
+}
 
+function Main() {
+    let rl = createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        prompt: '> '
+    });
+    rl.question('Enter the path to the ".csv" file:\n>', csvPath => {
+        console.log(csvPath);
 
-// function AgeStr(age) {
-//     count = age % 100;
-//     if (count >= 5 && count <= 20) {
-//         return 'лет';
-//     } else {
-//         count = count % 10;
-//         if (count == 1) {
-//             return 'год';
-//         } else if (count >= 2 && count <= 4) {
-//             return 'года';
-//         } else {
-//             return 'лет';
-//         }
-//     }
-// }
+        readFile(csvPath, "utf8", function (err, fileData) {
 
-// function EmployeeBirthdays(date, amount) {
-//     const monthNow = 5;
-//     const yearNow = 2022;
-//     const monthsStr = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            if (err) {
+                console.error(err);
+                return;
+            }
+            // results.push(data);
+            // console.log(results)
 
-//     date.sort(function (a, b) {
-//         if (a.month > b.month) {
-//             return 1;
-//         }
-//         if (a.month < b.month) {
-//             return -1;
-//         }
-//         if (a.day > b.day) {
-//             return 1;
-//         }
-//         if (a.day < b.day) {
-//             return -1;
-//         }
-//         if (a.year > b.year) {
-//             return 1;
-//         }
-//         if (a.year < b.year) {
-//             return -1;
-//         }
-//         return 0;
-//     });
-//     for (let i = 0; i <= amount; i++) {
-//         let flag = false;
-//         let month = (monthNow + i - 1) % 12;
-//         console.log(`${monthsStr[month]} ${yearNow + (Math.floor(i / 12))}:`);
-//         date.map(el => {
-//             if (el.month === (month % 12) + 1) {
-//                 let age = yearNow - el.year + (Math.floor(i / 12));
-//                 console.log(` (${el.day}) - ${el.name} (${age} ${AgeStr(age)})`);
-//                 flag = true;
-//             }            
-//         });
-//         if (!flag) {
-//             console.log(' Пусто...')
-//         }
-//     }
-// }
-
+            fileData = fileData.split('\n');
+            let nameKey = fileData[0].split(',')[0];
+            let dateKey = fileData[0].split(',')[1];
+            fileData.map((el, index, arr) => {
+                if (index !== 0) {
+                    let nameAndDate = el.split(',');
+                    // console.log(nameAndDate[0]);
+                    // console.log(nameAndDate[1]);
+                    let dateForPush = {
+                        [nameKey]: nameAndDate[0],
+                        [dateKey]: nameAndDate[1]
+                    };
+                    date.push(dateForPush);
+                }
+            });
+        });
+        // console.log('Enter the path to the ".csv" file:');
+        rl.question('Enter the number of horizontal planning:\n>', amount => {
+            EmployeeBirthdays(date, amount); // 1 - 12 месяц
+        });
+        rl.close();
+    });
+}
+Main()
 // EmployeeBirthdays(date, 23); // 1 - 12 месяц
