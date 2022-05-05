@@ -1,10 +1,12 @@
-import { readFile } from "fs";
-import path from "path";
-import { createInterface } from 'readline';
+const fs = require('fs');
+const path = require('path');
+// const readline = require('readline');
 
-// let csvPath = path.resolve(__dirname, './data.CSV');
+let defaultCsvPath = path.resolve(__dirname, './data.CSV');
 
 let date = [];
+let amount = process.argv[2] || 0;
+let csvPath = process.argv[3] || defaultCsvPath;
 
 function AgeStr(age) {
     count = age % 100;
@@ -82,45 +84,32 @@ function EmployeeBirthdays(date, amount) {
 }
 
 function Main() {
-    let rl = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-        prompt: '> '
-    });
-    rl.question('Enter the path to the ".csv" file:\n>', csvPath => {
-        console.log(csvPath);
+    // console.log('||' + csvPath + '||');
+    fs.readFile(csvPath, {encoding: "utf8"}, function (err, fileData) {
 
-        readFile(csvPath, "utf8", function (err, fileData) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        // results.push(data);
+        // console.log(results)
 
-            if (err) {
-                console.error(err);
-                return;
+        fileData = fileData.split('\n');
+        let nameKey = fileData[0].split(',')[0];
+        let dateKey = fileData[0].split(',')[1];
+        fileData.map((el, index, arr) => {
+            if (index !== 0) {
+                let nameAndDate = el.split(',');
+                // console.log(nameAndDate[0]);
+                // console.log(nameAndDate[1]);
+                let dateForPush = {
+                    [nameKey]: nameAndDate[0],
+                    [dateKey]: nameAndDate[1]
+                };
+                date.push(dateForPush);
             }
-            // results.push(data);
-            // console.log(results)
-
-            fileData = fileData.split('\n');
-            let nameKey = fileData[0].split(',')[0];
-            let dateKey = fileData[0].split(',')[1];
-            fileData.map((el, index, arr) => {
-                if (index !== 0) {
-                    let nameAndDate = el.split(',');
-                    // console.log(nameAndDate[0]);
-                    // console.log(nameAndDate[1]);
-                    let dateForPush = {
-                        [nameKey]: nameAndDate[0],
-                        [dateKey]: nameAndDate[1]
-                    };
-                    date.push(dateForPush);
-                }
-            });
         });
-        // console.log('Enter the path to the ".csv" file:');
-        rl.question('Enter the number of horizontal planning:\n>', amount => {
-            EmployeeBirthdays(date, amount); // 1 - 12 месяц
-        });
-        rl.close();
-    });
+        EmployeeBirthdays(date, amount); // 1 - 12 месяц
+    });    
 }
 Main()
-// EmployeeBirthdays(date, 23); // 1 - 12 месяц
