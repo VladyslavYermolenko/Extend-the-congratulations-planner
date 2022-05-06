@@ -41,7 +41,7 @@ function yearToNumber(date) {
 }
 
 /** Output grouped by month of birth sorted by date.
- *  @param {object} data An array of data about birthdays { name, date }.
+ *  @param {object} data An array of data about birthdays.
  *  @param {number} amount Planning horizon - how many months ahead to show birthdays.
  */
 function EmployeeBirthdays(data, amount) {
