@@ -6,20 +6,19 @@ let defaultCsvPath = path.resolve(__dirname, './data.CSV');
 let amount = process.argv[2] || 0;
 let csvPath = process.argv[3] || defaultCsvPath;
 
-function AgeStr(age) {
-    count = age % 100;
-    if (count >= 5 && count <= 20) {
-        return 'лет';
+function AgeStr(count) { // plural
+    let form = '';
+    const x = count % 10;
+    if (x === 0 || (count >= 10 && count <= 20)) {
+        form = 'лет';
+    } else if (x === 1) {
+        form = 'год';
+    } else if (x < 5 && count ) {
+        form = 'года';
     } else {
-        count = count % 10;
-        if (count == 1) {
-            return 'год';
-        } else if (count >= 2 && count <= 4) {
-            return 'года';
-        } else {
-            return 'лет';
-        }
+        form = 'лет';
     }
+    return count + ' ' + form;
 }
 
 /** Converting a date string to new Date and returning the day. */
@@ -81,29 +80,22 @@ function EmployeeBirthdays(data, amount) {
         }
         for (const el of arr) {
             let age = yearNow - yearToNumber(el.date) + (Math.floor(i / 12));
-            console.log(` (${dayToNumber(el.date)}) - ${el.name} (${age} ${AgeStr(age)})`);
+            console.log(` (${dayToNumber(el.date)}) - ${el.name} (${AgeStr(age)})`);
         }
     }
 }
 
 function Main() {
-    let data = [];
     fs.readFile(csvPath, {encoding: "utf8"}, function (err, fileData) {
         if (err) {
             console.error(err);
             return;
         }
         fileData = fileData.split('\r\n');
-        let nameKey = fileData[0].split(',')[0];
-        let dateKey = fileData[0].split(',')[1];
-        fileData.forEach((el, index) => {
-            if (index !== 0) {
-                let nameAndDate = el.split(',');
-                data.push({
-                    [nameKey]: nameAndDate[0],
-                    [dateKey]: nameAndDate[1]
-                });
-            }
+        fileData.shift();
+        const data = fileData.map((el) => {
+            let [name, date] = el.split(',');
+            return { name, date }
         });
         EmployeeBirthdays(data, amount); // 1 - 12 месяц
     });
