@@ -22,21 +22,28 @@ function AgeStr(age) {
     }
 }
 
+/** Converting a date string to new Date and returning the day. */
 function dayToNumber(date) {
     let formatDate = date.split('.').reverse().join('-')
     return new Date(formatDate).getDate();
 }
 
+/** Converting a date string to new Date and returning the month. */
 function monthToNumber(date) {
     let formatDate = date.split('.').reverse().join('-')
     return new Date(formatDate).getMonth() + 1;
 }
 
+/** Converting a date string to new Date and returning the year. */
 function yearToNumber(date) {
     let formatDate = date.split('.').reverse().join('-')
     return new Date(formatDate).getFullYear();
 }
 
+/** Output grouped by month of birth sorted by date.
+ *  @param {object} data An array of data about birthdays { name, date }.
+ *  @param {number} amount Planning horizon - how many months ahead to show birthdays.
+ */
 function EmployeeBirthdays(data, amount) {
     const monthNow = new Date(new Date().toDateString()).getMonth() + 1;
     const yearNow = new Date(new Date().toDateString()).getFullYear();
